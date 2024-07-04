@@ -12,7 +12,7 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.UUID;
 
-@Table(name= "envet" )
+@Table(name= "event" )
 @Entity
 @Setter
 @Getter
