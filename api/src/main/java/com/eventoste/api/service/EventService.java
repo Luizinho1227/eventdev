@@ -3,9 +3,13 @@ package com.eventoste.api.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.eventoste.api.domain.Event.Event;
 import com.eventoste.api.domain.Event.EventRequestDTO;
+import com.eventoste.api.domain.Event.EventResponseDTO;
 import com.eventoste.api.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -24,6 +29,7 @@ public class EventService {
     private EventRepository repository;
     @Autowired
     private AmazonS3 s3Client;
+
     public Event createEvent(EventRequestDTO data) {
         String imagUrl = null;
 
@@ -40,7 +46,7 @@ public class EventService {
 
         repository.save(newEvent);
 
-        return  newEvent;
+        return newEvent;
     }
 
     private String uploadImg(MultipartFile multipartFile) {
@@ -55,6 +61,23 @@ public class EventService {
             System.out.println("Erro ao subir o arquivo");
             return "";
         }
+
+        }
+    public List<EventResponseDTO> getAllEvent(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Event> eventsPage = this.repository.findAll(pageable);
+        return eventsPage.stream().map(event -> new EventResponseDTO(
+                        event.getId(),
+                        event.getTitle(),
+                        event.getDescription(),
+                        event.getDate(),
+                        "",
+                        "",
+                        event.getRemote(),
+                        event.getEventUrl(),
+                        event.getImgUrl()
+                )).toList();
+
     }
     private File convertMultpartToFile(MultipartFile multipartFile) throws IOException {
         File convFile = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));

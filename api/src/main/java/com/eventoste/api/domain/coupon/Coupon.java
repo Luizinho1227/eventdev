@@ -22,7 +22,7 @@ public class Coupon {
 
     private String code;
     private Integer discount;
-    private Date date;
+    private Date valid;
 
     @ManyToOne
     @JoinColumn(name= "event_id")
